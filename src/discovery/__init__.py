@@ -16,6 +16,11 @@ _BaseWebDiscoveryAgent = _discovery_module.WebDiscoveryAgent
 GOOGLE_API_KEY = _discovery_module.GOOGLE_API_KEY
 GOOGLE_CSE_ID = _discovery_module.GOOGLE_CSE_ID
 BING_API_KEY = _discovery_module.BING_API_KEY
+is_safe_acquisition_target = _discovery_module.is_safe_acquisition_target
+validate_acquisition_url = _discovery_module.validate_acquisition_url
+get_acquisition_ssrf_guard = _discovery_module.get_acquisition_ssrf_guard
+get_safe_http_client = _discovery_module.get_safe_http_client
+SSRFSecurityError = _discovery_module.SSRFSecurityError
 
 
 class WebDiscoveryAgent(_BaseWebDiscoveryAgent):

@@ -8,7 +8,7 @@ version = "2.0.0"
 description = "Production-grade Real-Time Tech News Aggregator & Scraper with Canonical Pipeline"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "MIT" }
+license = { text = "Proprietary" }
 authors = [
     { name = "Antigravity Engineering", email = "engineering@example.com" }
 ]

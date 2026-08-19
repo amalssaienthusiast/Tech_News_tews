@@ -170,4 +170,6 @@ The repository includes a self-contained operational reliability framework under
 
 ## 10. License
 
-This project is licensed under the MIT License — see the [`LICENSE`](LICENSE) file for details.
+Copyright (c) 2026 amalssaienthusiast. All Rights Reserved.
+
+This repository and all of its contents are proprietary and confidential. Permission is granted to view the source code for educational and informational purposes only — see the [`LICENSE`](LICENSE) file for complete terms and restrictions.

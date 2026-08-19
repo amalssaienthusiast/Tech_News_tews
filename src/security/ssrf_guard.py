@@ -92,6 +92,12 @@ class SSRFGuard:
         Check if an IP address is safe for outbound connections.
         Returns (is_allowed, reason_if_blocked).
         """
+        # If IPv4-mapped or NAT64 translated address, validate the embedded IPv4 address
+        if isinstance(ip_obj, ipaddress.IPv6Address):
+            if ip_obj in ipaddress.IPv6Network("::ffff:0:0/96") or ip_obj in ipaddress.IPv6Network("64:ff9b::/96"):
+                embedded_v4 = ipaddress.IPv4Address(ip_obj.packed[-4:])
+                return self.is_ip_allowed(embedded_v4)
+
         if ip_obj.is_loopback:
             return False, f"Loopback address forbidden: {ip_obj}"
         if ip_obj.is_private:

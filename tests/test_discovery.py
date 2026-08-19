@@ -30,6 +30,8 @@ class TestWebDiscoveryAgent(unittest.TestCase):
                     self.agent = WebDiscoveryAgent(self.mock_db)
         
         self.agent.session = MagicMock()
+        self.agent.ssrf_guard = MagicMock()
+        self.agent.ssrf_guard.validate_url.return_value = ("technews.com", [])
     
     def test_initialization(self):
         """Test agent initializes correctly."""
