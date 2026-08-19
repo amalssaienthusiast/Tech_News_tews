@@ -1,0 +1,49 @@
+{
+    "sources": [
+        {
+            "name": "Google News",
+            "url": "https://news.google.com/rss",
+            "type": "google_news",
+            "refresh_rate": 60,
+            "enabled": true
+        },
+        {
+            "name": "BBC News",
+            "url": "http://feeds.bbci.co.uk/news/rss.xml",
+            "type": "rss",
+            "refresh_rate": 120,
+            "enabled": true
+        },
+        {
+            "name": "CNN",
+            "url": "http://rss.cnn.com/rss/edition.rss",
+            "type": "rss",
+            "refresh_rate": 120,
+            "enabled": true
+        },
+        {
+            "name": "NewsAPI",
+            "url": "https://newsapi.org/v2/top-headlines",
+            "type": "api",
+            "api_key": "YOUR_API_KEY",
+            "parameters": {
+                "country": "us",
+                "pageSize": 50
+            },
+            "enabled": false
+        },
+        {
+            "name": "Twitter Trends",
+            "url": "https://api.twitter.com/2/tweets/search/recent",
+            "type": "api",
+            "requires_auth": true,
+            "enabled": false
+        }
+    ],
+    "general": {
+        "max_concurrent_scrapers": 10,
+        "request_timeout": 30,
+        "user_agent": "Mozilla/5.0 (compatible; NewsAggregator/1.0)",
+        "dedupe_threshold": 0.8
+    }
+}

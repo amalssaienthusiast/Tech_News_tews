@@ -1,0 +1,55 @@
+# Git
+.git
+.gitignore
+.github
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Logs and databases (mounted as volumes in production)
+*.log
+*.db
+*.sqlite
+*.sqlite3
+data/
+logs/
+
+# Rust build artifacts
+src/bypass/target/
+src/bypass/Cargo.lock
+
+# Documentation
+*.md
+LICENSE
+
+# Test files (keep tests/ for CI builds, exclude manual tests)
+tests/manual/
+tests/debug_medium.py
+tests/performance_benchmark.py

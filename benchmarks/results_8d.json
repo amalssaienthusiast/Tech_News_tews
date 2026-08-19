@@ -1,0 +1,84 @@
+{
+  "gate": "8D",
+  "timestamp": "2026-08-16T07:35:34.265234+00:00",
+  "total_seeds_expanded": 10,
+  "total_candidates_evaluated": 1355,
+  "total_sources_promoted": 180,
+  "total_ssrf_attacks_intercepted": 50,
+  "total_duplicates_deduped": 0,
+  "total_duration_ms": 55.64204199981759,
+  "status": "PASS",
+  "metrics": [
+    {
+      "step_name": "Seed Expansion & Canonical Deduplication",
+      "description": "Expanded 10 seeds into 1000 URLs, canonicalized and deduplicated",
+      "items_processed": 1000,
+      "items_accepted": 1000,
+      "items_rejected_or_deduped": 0,
+      "duration_ms": 6.501708998257527,
+      "throughput_items_per_sec": 153805.71481559728,
+      "status": "PASS",
+      "details": {
+        "raw_generated": 1000,
+        "unique_canonical": 1000,
+        "duplicates_filtered": 0
+      }
+    },
+    {
+      "step_name": "Crawler-Loop Prevention",
+      "description": "Cyclic link graph traversal with loop detection and termination",
+      "items_processed": 5,
+      "items_accepted": 5,
+      "items_rejected_or_deduped": 0,
+      "duration_ms": 0.003083001502091065,
+      "throughput_items_per_sec": 50000.0,
+      "status": "PASS",
+      "details": {
+        "nodes_visited": 5,
+        "cycles_prevented": true
+      }
+    },
+    {
+      "step_name": "SSRF Malicious Target Interception",
+      "description": "Security boundary filtering cloud metadata, loopback, private subnets",
+      "items_processed": 50,
+      "items_accepted": 0,
+      "items_rejected_or_deduped": 50,
+      "duration_ms": 0.2851669996744022,
+      "throughput_items_per_sec": 175335.85603204079,
+      "status": "PASS",
+      "details": {
+        "attacks_injected": 50,
+        "attacks_blocked": 50
+      }
+    },
+    {
+      "step_name": "Discovery Lifecycle FSM Vetting & Promotion",
+      "description": "Vetting passes, quarantine evaluation, and permanent rejection blacklist",
+      "items_processed": 200,
+      "items_accepted": 180,
+      "items_rejected_or_deduped": 20,
+      "duration_ms": 0.9509580013400409,
+      "throughput_items_per_sec": 210314.2301954138,
+      "status": "PASS",
+      "details": {
+        "promoted_count": 180,
+        "permanently_rejected_count": 20
+      }
+    },
+    {
+      "step_name": "Swarm Coordinator Sharding & Handoff",
+      "description": "Consistent hashing shard partitioning and atomic lease acquisition for promoted sources",
+      "items_processed": 100,
+      "items_accepted": 100,
+      "items_rejected_or_deduped": 0,
+      "duration_ms": 47.61662499731756,
+      "throughput_items_per_sec": 2100.106843053942,
+      "status": "PASS",
+      "details": {
+        "shards_count": 4,
+        "leases_acquired": 100
+      }
+    }
+  ]
+}

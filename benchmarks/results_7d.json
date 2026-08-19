@@ -1,0 +1,68 @@
+[
+  {
+    "test_case": "7D-1: Worker Crash & Lease Reclamation",
+    "description": "Abrupt worker termination with stale lease expiry and successor takeover",
+    "injected_faults": 1,
+    "faults_caught": 1,
+    "unhandled_exceptions": 0,
+    "split_brain_prevented": true,
+    "data_loss_detected": false,
+    "recovery_time_ms": 601.2486670006183,
+    "status": "PASS",
+    "details": {
+      "initial_token": "dd6e7604-c5cf-4da1-bd3b-fbbb8d094a19",
+      "successor_token": "a81058de-09a5-4f3c-b765-8c819148be07",
+      "reclamation_delay_ms": 601.2486670006183
+    }
+  },
+  {
+    "test_case": "7D-2: Stale Fencing Token Rejection",
+    "description": "Stale worker waking up after lease takeover is rejected by fencing token",
+    "injected_faults": 2,
+    "faults_caught": 2,
+    "unhandled_exceptions": 0,
+    "split_brain_prevented": true,
+    "data_loss_detected": false,
+    "recovery_time_ms": 0.0,
+    "status": "PASS",
+    "details": {
+      "stale_token": "4406c8cb-7342-4d70-8623-2286553a8fe2",
+      "valid_token": "567dcfbb-ebdd-464b-9235-590284ad9ea3",
+      "stale_renew_rejected": true,
+      "stale_release_rejected": true
+    }
+  },
+  {
+    "test_case": "7D-3: Poisoned Payload & SQLi Isolation",
+    "description": "Adversarial payloads (null bytes, SQL injection, FTS5 operator bombs, 500KB blobs)",
+    "injected_faults": 4,
+    "faults_caught": 4,
+    "unhandled_exceptions": 0,
+    "split_brain_prevented": true,
+    "data_loss_detected": false,
+    "recovery_time_ms": 0.0,
+    "status": "PASS",
+    "details": {
+      "payloads_tested": 4,
+      "database_intact": true,
+      "fts5_searchable": true
+    }
+  },
+  {
+    "test_case": "7D-4: Consumer Crash & Queue Drain Recovery",
+    "description": "Consumer crashes mid-stream; replacement consumer takes over with zero item loss",
+    "injected_faults": 1,
+    "faults_caught": 1,
+    "unhandled_exceptions": 0,
+    "split_brain_prevented": true,
+    "data_loss_detected": false,
+    "recovery_time_ms": 0.0,
+    "status": "PASS",
+    "details": {
+      "initial_enqueued": 100,
+      "popped_before_crash": 20,
+      "drained_after_recovery": 80,
+      "total_reclaimed": 100
+    }
+  }
+]

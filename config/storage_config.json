@@ -1,0 +1,6 @@
+{
+  "mode": "ephemeral",
+  "ttl_seconds": 7200,
+  "max_articles": 1000,
+  "updated_at": "2026-07-25T03:35:58.955312+00:00"
+}

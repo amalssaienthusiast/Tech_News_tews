@@ -1,0 +1,52 @@
+{
+  "experiment_name": "phase_8e_operational_reliability",
+  "phase": "Phase 8E",
+  "regime": "E6",
+  "configured_duration_seconds": 2592000.0,
+  "workload_profile": {
+    "base_rate": 150.0,
+    "burst_rate": 500.0,
+    "mode": "batched_concurrent_pipeline"
+  },
+  "source_count": 5000,
+  "offered_ingestion_rate": 150.0,
+  "worker_count": 16,
+  "checkpoint_interval_seconds": 21600.0,
+  "random_seed": 42,
+  "fault_injection_schedule": [
+    {
+      "time_offset_seconds": 259200.0,
+      "type": "lease_expiry_takeover",
+      "description": "Day 3 lease expiry and successor reclamation"
+    },
+    {
+      "time_offset_seconds": 604800.0,
+      "type": "overload_burst",
+      "description": "Day 7 500 items/sec overload burst"
+    },
+    {
+      "time_offset_seconds": 1209600.0,
+      "type": "rate_limiting_storm",
+      "description": "Day 14 50% 429 storm"
+    },
+    {
+      "time_offset_seconds": 1814400.0,
+      "type": "lease_expiry_takeover",
+      "description": "Day 21 lease expiry and successor reclamation"
+    },
+    {
+      "time_offset_seconds": 2419200.0,
+      "type": "overload_burst",
+      "description": "Day 28 500 items/sec overload burst"
+    }
+  ],
+  "slo_thresholds": {
+    "max_silent_data_loss": 0,
+    "max_fd_delta": 2,
+    "max_memory_growth_rate_mb_per_hr": 1.0,
+    "max_prometheus_series": 300,
+    "max_sqlite_busy_errors": 0,
+    "max_fts5_slo_a_p95_ms": 2.0,
+    "max_fts5_slo_b_p95_ms": 10.0
+  }
+}

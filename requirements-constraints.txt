@@ -1,0 +1,45 @@
+# pip-tools constraints file.
+#
+# This file pins known-good versions of dependencies that have historically
+# caused issues or have known CVEs at their minimum-pinned versions in
+# requirements.txt. It is NOT a complete lockfile — generate one with:
+#
+#     pip-compile requirements.txt -o requirements.lock
+#     pip-compile requirements-dev.txt -o requirements-dev.lock
+#
+# Then install with:
+#
+#     pip install -r requirements.lock
+#
+# The pins below are upper-bound safety rails: they prevent pip from
+# resolving to a known-broken or known-vulnerable version, while still
+# allowing patch-level updates.
+
+# Pin aiohttp to >=3.9.0 to pick up CVE-2023-37276 / CVE-2023-49083 /
+# CVE-2024-23334 / CVE-2024-27306 fixes (minimum pin in requirements.txt
+# is 3.8.0 which has all four CVEs).
+aiohttp>=3.9.5,<4.0
+
+# Pin Pillow to >=10.0.0 to pick up CVE-2023-44271 fix.
+Pillow>=10.0.0,<12.0
+
+# Pin requests to >=2.32.0 to pick up CVE-2023-32681 fix.
+requests>=2.32.0,<3.0
+
+# Pin fastapi to >=0.110.0 to pick up CVE-2024-24762 fix.
+fastapi>=0.110.0,<1.0
+
+# Pin redis to >=5.0.0 to pick up CVE-2023-28858 fix.
+redis>=5.0.0,<6.0
+
+# Pin lxml to >=5.0.0 to pick up CVE-2022-2309 fix and performance improvements.
+lxml>=5.0.0,<6.0
+
+# Pin pydantic to >=2.5.0 for compatibility with langchain-core>=1.0.
+pydantic>=2.5.0,<3.0
+
+# SQLAlchemy 2.x has stable async support; pin minor to avoid 2.0->2.1 churn.
+SQLAlchemy>=2.0.25,<2.1
+
+# certifi pin: keep fresh for CA bundle updates.
+certifi>=2024.7.4

@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CloudRuntimeAcceptanceManifest",
+  "description": "Schema for Phase 8H-H4 Cloud Runtime Deployment Acceptance manifests.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "experiment_name",
+    "phase",
+    "run_id",
+    "run_name",
+    "started_at",
+    "ended_at",
+    "git_commit",
+    "git_branch",
+    "git_dirty",
+    "build_duration_seconds",
+    "shutdown_duration_seconds",
+    "health_status",
+    "fail_closed_auth",
+    "worker_status",
+    "database_integrity",
+    "restart_status",
+    "final_status",
+    "exit_code"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "experiment_name": {
+      "type": "string"
+    },
+    "phase": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "run_name": {
+      "type": "string"
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "ended_at": {
+      "type": "string"
+    },
+    "git_commit": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{7,40}$"
+    },
+    "git_branch": {
+      "type": "string"
+    },
+    "git_dirty": {
+      "type": "boolean"
+    },
+    "build_duration_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "shutdown_duration_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "health_status": {
+      "type": "string"
+    },
+    "fail_closed_auth": {
+      "type": "string",
+      "enum": ["PASS", "FAIL"]
+    },
+    "worker_status": {
+      "type": "string",
+      "enum": ["PASS", "FAIL"]
+    },
+    "database_integrity": {
+      "type": "string",
+      "enum": ["PASS", "FAIL"]
+    },
+    "restart_status": {
+      "type": "string"
+    },
+    "final_status": {
+      "type": "string",
+      "enum": ["PASS", "FAIL"]
+    },
+    "exit_code": {
+      "type": "integer"
+    }
+  },
+  "additionalProperties": true
+}

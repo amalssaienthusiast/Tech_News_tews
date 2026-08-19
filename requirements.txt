@@ -1,0 +1,152 @@
+# Core dependencies
+certifi>=2024.2.2
+requests>=2.25.1
+beautifulsoup4>=4.9.3
+feedparser>=6.0.10
+
+# Async HTTP
+aiohttp>=3.8.0
+aiosqlite>=0.17.0
+Brotli>=1.1.0  # Required for brotli content-encoding support
+
+# AI/ML
+torch>=1.9.0
+transformers>=4.11.0
+sentence-transformers>=2.2.0
+nltk>=3.8.0  # VADER sentiment lexicon (downloaded at install time via post-install hook)
+
+# Data processing
+numpy>=1.21.0
+Pillow>=8.3.0
+
+# Testing
+pytest>=7.0.0
+pytest-asyncio>=0.20.0
+aioresponses>=0.7.0
+
+# GUI framework (consolidated on PyQt6 — controller.py/main_window.py were previously
+# on PySide6 and have been ported; see gui_qt/theme.py for the one remaining historical note)
+PyQt6>=6.6.0
+
+# Bypass / Anti-bot (optional - for advanced bypass features)
+playwright>=1.40.0  # Browser automation for Cloudflare bypass
+fake-useragent>=1.4.0  # User agent rotation
+
+# Intelligence Module (v3.0)
+pydantic>=2.0.0  # Structured LLM outputs
+google-generativeai>=0.3.0  # Google Gemini API
+langchain-google-genai>=1.0.0  # LangChain Gemini wrapper
+PyYAML>=6.0.0  # Configuration files
+python-dotenv>=1.0.0  # Environment variables
+
+# Newsletter & Workflow (v4.0)
+langgraph>=1.0.0  # LangGraph workflow orchestration
+langchain-core>=1.0.0  # LangChain core utilities
+
+# Newsletter v4.1 Integrations
+slack-sdk>=3.20.0  # Slack approval workflow
+APScheduler>=3.10.0  # Scheduled newsletter generation
+
+# =============================================================================
+# REAL-TIME INFRASTRUCTURE (v5.0)
+# =============================================================================
+
+# Redis for pub/sub and caching
+redis>=4.5.0
+
+# WebSocket support
+websockets>=11.0.0
+fastapi>=0.100.0
+uvicorn>=0.23.0
+gunicorn>=21.2.0  # Production WSGI/ASGI supervisor for uvicorn workers
+
+# Celery for distributed task queue (optional)
+# celery>=5.3.0
+
+# =============================================================================
+# SEARCH ENGINE APIS (v5.0)
+# =============================================================================
+
+# NewsAPI.org client
+newsapi-python>=0.2.7
+
+# Google API client (for Custom Search)
+google-api-python-client>=2.100.0
+
+# =============================================================================
+# ENHANCED PROCESSING (v5.0)
+# =============================================================================
+
+# MinHash LSH for semantic deduplication
+datasketch>=1.6.0
+
+# Fuzzy string matching
+fuzzywuzzy>=0.18.0
+python-Levenshtein>=0.21.0  # Speed up fuzzywuzzy
+
+# =============================================================================
+# ADDITIONAL DISCOVERY SOURCES (v6.0)
+# =============================================================================
+
+# DuckDuckGo search (no API key required)
+# Note: Package renamed from duckduckgo-search to ddgs
+# >=9.2.0 fixes the Yahoo News result parser IndexError present in 9.0.x/9.1.x
+ddgs>=9.2.0
+
+# Google Trends
+pytrends>=4.9.0
+
+# Reddit API (optional, works without)
+praw>=7.7.0
+
+# =============================================================================
+# PHASE 9: ADVANCED INFRASTRUCTURE
+# =============================================================================
+
+# Twitter/X API
+tweepy>=4.14.0
+
+# Celery distributed queue
+celery>=5.3.0
+
+# Elasticsearch full-text search
+elasticsearch>=8.10.0
+
+# =============================================================================
+# RESILIENCE SYSTEM (v10.0)
+# =============================================================================
+
+# System metrics for health monitoring
+psutil>=5.9.0
+
+# Date parsing utilities
+python-dateutil>=2.8.2
+
+# =============================================================================
+# RUST-PYTHON HYBRID (v8.0)
+# =============================================================================
+
+# Build Rust-Python extensions
+maturin>=1.0.0
+
+# HTML parsing (fallback if Rust unavailable)
+lxml>=4.9.0
+
+# =============================================================================
+# PRODUCTION HARDENING (audit P0-B)
+# =============================================================================
+
+# SQL ORM (used by src/db_storage/db_handler.py — was previously missing)
+SQLAlchemy>=2.0.0
+
+# Async PostgreSQL driver (used by src/db_storage/migration.py and async_database.py)
+asyncpg>=0.29.0
+
+# TLS fingerprint impersonation (used by src/bypass/tls_client.py — was previously missing)
+curl-cffi>=0.7.0
+
+# XXE-safe XML parsing (used by src/crawler/enhanced_crawler.py for sitemap parsing)
+defusedxml>=0.7.0
+
+# Sentry SDK for error tracking in production (optional but recommended)
+# sentry-sdk[fastapi]>=2.0.0

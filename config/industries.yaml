@@ -1,0 +1,143 @@
+# Tech News Scraper - Industry Configuration
+#
+# Defines industries for market disruption analysis.
+# Primary industry: Tech (always analyzed)
+# Secondary industries: Custom industries for targeted analysis
+#
+# Format:
+#   industries:
+#     - name: "Industry Name"
+#       keywords: ["keyword1", "keyword2"]
+#       competitors: ["Company1", "Company2"]
+#       description: "Optional description"
+
+# Primary Industry (always active)
+primary_industry:
+  name: "Technology"
+  keywords:
+    - "tech"
+    - "software"
+    - "hardware"
+    - "innovation"
+    - "digital"
+    - "computing"
+  competitors:
+    - "Google"
+    - "Microsoft"
+    - "Amazon"
+    - "Apple"
+    - "Meta"
+    - "NVIDIA"
+    - "OpenAI"
+    - "Anthropic"
+
+# Secondary Industries (contextual analysis)
+secondary_industries:
+  - name: "Artificial Intelligence"
+    keywords:
+      - "ai"
+      - "artificial intelligence"
+      - "machine learning"
+      - "deep learning"
+      - "neural network"
+      - "llm"
+      - "gpt"
+      - "foundation model"
+    competitors:
+      - "OpenAI"
+      - "Anthropic"
+      - "Google DeepMind"
+      - "Meta AI"
+      - "Mistral"
+      - "Cohere"
+
+  - name: "Cloud Infrastructure"
+    keywords:
+      - "cloud"
+      - "aws"
+      - "azure"
+      - "gcp"
+      - "kubernetes"
+      - "serverless"
+      - "iaas"
+      - "paas"
+    competitors:
+      - "AWS"
+      - "Microsoft Azure"
+      - "Google Cloud"
+      - "Cloudflare"
+      - "DigitalOcean"
+      - "Oracle Cloud"
+
+  - name: "Enterprise Software"
+    keywords:
+      - "saas"
+      - "enterprise"
+      - "erp"
+      - "crm"
+      - "b2b"
+      - "productivity"
+    competitors:
+      - "Salesforce"
+      - "SAP"
+      - "Oracle"
+      - "Workday"
+      - "ServiceNow"
+      - "Atlassian"
+
+  - name: "Cybersecurity"
+    keywords:
+      - "security"
+      - "cybersecurity"
+      - "infosec"
+      - "threat"
+      - "vulnerability"
+      - "ransomware"
+      - "encryption"
+    competitors:
+      - "CrowdStrike"
+      - "Palo Alto Networks"
+      - "Fortinet"
+      - "Zscaler"
+      - "SentinelOne"
+
+  - name: "Fintech"
+    keywords:
+      - "fintech"
+      - "payments"
+      - "banking"
+      - "neobank"
+      - "crypto"
+      - "blockchain"
+      - "defi"
+    competitors:
+      - "Stripe"
+      - "Square"
+      - "PayPal"
+      - "Coinbase"
+      - "Robinhood"
+      - "Plaid"
+
+  - name: "Developer Tools"
+    keywords:
+      - "developer"
+      - "devtools"
+      - "ide"
+      - "api"
+      - "sdk"
+      - "devops"
+      - "ci/cd"
+      - "git"
+    competitors:
+      - "GitHub"
+      - "GitLab"
+      - "JetBrains"
+      - "Vercel"
+      - "Netlify"
+      - "Supabase"
+
+# Add your custom industries below:
+# custom_industries:
+#   - name: "Your Industry"
+#     keywords: [...]
+#     competitors: [...]

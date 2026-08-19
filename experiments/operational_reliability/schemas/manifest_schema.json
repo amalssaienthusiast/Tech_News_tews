@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OperationalReliabilityRunManifest",
+  "description": "Schema for self-contained, reproducible Phase 8E operational reliability experiment manifests.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "experiment_name",
+    "phase",
+    "regime",
+    "configured_duration_seconds",
+    "actual_duration_seconds",
+    "workload_profile",
+    "source_count",
+    "offered_ingestion_rate",
+    "worker_count",
+    "fault_injection_schedule",
+    "checkpoint_interval_seconds",
+    "git_commit",
+    "git_dirty",
+    "environment_fingerprint",
+    "started_at",
+    "ended_at",
+    "final_status"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "pattern": "^[0-9]{8}T[0-9]{6}Z_[A-Za-z0-9_]+_[a-f0-9]{8}$"
+    },
+    "experiment_name": {
+      "type": "string"
+    },
+    "phase": {
+      "type": "string"
+    },
+    "regime": {
+      "type": "string",
+      "enum": ["E1", "E2", "E3", "E4", "E5", "E6", "SMOKE"]
+    },
+    "configured_duration_seconds": {
+      "type": "number",
+      "minimum": 1
+    },
+    "actual_duration_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "workload_profile": {
+      "type": "object",
+      "required": ["base_rate", "burst_rate", "mode"],
+      "properties": {
+        "base_rate": {"type": "number"},
+        "burst_rate": {"type": "number"},
+        "mode": {"type": "string"}
+      }
+    },
+    "source_count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "offered_ingestion_rate": {
+      "type": "number",
+      "minimum": 0
+    },
+    "worker_count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "fault_injection_schedule": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["time_offset_seconds", "type", "description"],
+        "properties": {
+          "time_offset_seconds": {"type": "number"},
+          "type": {"type": "string"},
+          "description": {"type": "string"}
+        }
+      }
+    },
+    "checkpoint_interval_seconds": {
+      "type": "number",
+      "minimum": 1
+    },
+    "random_seed": {
+      "type": "integer"
+    },
+    "git_commit": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{7,40}$"
+    },
+    "git_dirty": {
+      "type": "boolean"
+    },
+    "environment_fingerprint": {
+      "type": "object",
+      "required": [
+        "hostname",
+        "platform",
+        "os_release",
+        "kernel",
+        "python_version",
+        "sqlite_version",
+        "cpu_model",
+        "cpu_cores_physical",
+        "cpu_cores_logical",
+        "ram_total_mb",
+        "disk_total_gb",
+        "disk_free_gb"
+      ]
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ended_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "final_status": {
+      "type": "string",
+      "enum": ["PASS", "FAIL", "INTERRUPTED", "CRASHED"]
+    },
+    "exit_code": {
+      "type": "integer"
+    }
+  }
+}

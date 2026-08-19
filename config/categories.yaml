@@ -1,0 +1,25 @@
+# Tech News Scraper - News Categories Configuration
+#
+# This file defines custom news categories beyond the 25 built-in categories.
+# New categories added here will be merged with built-in categories.
+# Existing categories are skipped (not overwritten).
+#
+# Format:
+#   categories:
+#     - name: "Category Name"
+#       keywords: ["keyword1", "keyword2"]
+#       description: "Optional description"
+#       enabled: true
+#
+# Example custom category:
+#   - name: "Generative AI"
+#     keywords: ["chatgpt", "claude", "midjourney", "dall-e", "stable diffusion"]
+#     description: "Generative AI models and applications"
+#     enabled: true
+
+categories: []
+# Add your custom categories below:
+# - name: "Your Category"
+#   keywords: ["keyword1", "keyword2"]
+#   description: "Description"
+#   enabled: true

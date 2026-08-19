@@ -1,0 +1,18 @@
+# Development dependencies — install with: pip install -r requirements-dev.txt
+# This installs requirements.txt plus dev-only tools.
+-r requirements.txt
+
+# Linting and formatting
+ruff>=0.5.0
+black>=24.0.0
+mypy>=1.10.0
+
+# Test coverage
+pytest-cov>=5.0.0
+pytest-xdist>=3.5.0  # Parallel test execution
+
+# Lockfile generation
+pip-tools>=7.4.0
+
+# Pre-commit hooks
+pre-commit>=3.7.0

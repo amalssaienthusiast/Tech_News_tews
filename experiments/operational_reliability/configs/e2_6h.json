@@ -1,0 +1,52 @@
+{
+  "experiment_name": "phase_8e_operational_reliability",
+  "phase": "Phase 8E",
+  "regime": "E2",
+  "configured_duration_seconds": 21600.0,
+  "workload_profile": {
+    "base_rate": 80.0,
+    "burst_rate": 500.0,
+    "mode": "batched_concurrent_pipeline"
+  },
+  "source_count": 500,
+  "offered_ingestion_rate": 80.0,
+  "worker_count": 16,
+  "checkpoint_interval_seconds": 900.0,
+  "random_seed": 42,
+  "fault_injection_schedule": [
+    {
+      "time_offset_seconds": 3600.0,
+      "type": "lease_expiry_takeover",
+      "description": "Active source lease expires without renewal; successor worker reclaims"
+    },
+    {
+      "time_offset_seconds": 7200.0,
+      "type": "overload_burst",
+      "description": "500 items/sec ingestion burst (>138.6/s SQLite WAL capacity)"
+    },
+    {
+      "time_offset_seconds": 10800.0,
+      "type": "rate_limiting_storm",
+      "description": "50% HTTP 429 rate limit storm with active backpressure"
+    },
+    {
+      "time_offset_seconds": 14400.0,
+      "type": "lease_expiry_takeover",
+      "description": "Second lease expiration and successor reclamation"
+    },
+    {
+      "time_offset_seconds": 18000.0,
+      "type": "overload_burst",
+      "description": "Second 500 items/sec overload burst"
+    }
+  ],
+  "slo_thresholds": {
+    "max_silent_data_loss": 0,
+    "max_fd_delta": 2,
+    "max_memory_growth_rate_mb_per_hr": 1.0,
+    "max_prometheus_series": 300,
+    "max_sqlite_busy_errors": 0,
+    "max_fts5_slo_a_p95_ms": 2.0,
+    "max_fts5_slo_b_p95_ms": 10.0
+  }
+}

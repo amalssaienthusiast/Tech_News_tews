@@ -1,0 +1,51 @@
+# Resilience System Configuration
+# Tech News Scraper Enterprise Resilience
+
+resilience:
+  enabled: true
+  auto_fix: true
+  
+  monitoring:
+    metrics_port: 9090
+    health_check_interval: 300  # seconds (5 minutes)
+    issue_detection_interval: 60  # seconds
+  
+  deprecation:
+    check_interval: 86400  # 24 hours
+    auto_migrate: false    # Set to true for automatic migrations
+    notify_on_migration: true
+  
+  sources:
+    health_check_enabled: true
+    retry_failed_sources: true
+    max_retries: 3
+    backoff_factor: 2
+    degraded_threshold: 0.7  # Below 70% success = degraded
+    unhealthy_threshold: 0.3  # Below 30% success = unhealthy
+  
+  warnings:
+    aggregation_enabled: true
+    suppression_window: 300  # seconds
+    max_warnings_per_source: 100
+  
+  compatibility:
+    rss:
+      normalize_dates: true
+      suppress_warnings: true
+      format_detection: true
+    
+    packages:
+      auto_shim: true
+      warn_on_deprecated: true
+      migration_guides: true
+
+logging:
+  resilience:
+    level: INFO
+    file: logs/resilience.log
+    max_size: 10485760  # 10MB
+    backup_count: 5
+  
+  metrics:
+    level: INFO
+    file: logs/metrics.log

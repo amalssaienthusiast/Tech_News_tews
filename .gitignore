@@ -1,0 +1,72 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment variables
+.env
+.env.local
+
+# Logs
+*.log
+logs/
+
+# Cache
+.cache/
+*.cache
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Rust build artifacts (src/bypass/target/ was previously committed — ~525MB
+# of compiler cache; see scripts/dev_archive for context on how that happened)
+target/
+Cargo.lock.bak
+
+# Runtime databases and generated data (these are outputs, not source —
+# live_feed.db and data/tech_news.db were previously committed)
+*.db
+*.sqlite
+*.sqlite3
+# discovered_sources.json accumulates timestamps/quality scores at runtime —
+# ignore it. data/custom_sources.json is genuine hand-curated config (read
+# by src/engine/orchestrator.py._load_custom_sources) and stays tracked.
+discovered_sources/*.json
+
+# Test / lint artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Experimental reliability runs
+experiments/operational_reliability/runs/*
+!experiments/operational_reliability/runs/.gitkeep
+
+# Graphify / Scratch / Archives
+*.zip
+*.tar.gz
+graphify-out/
+massive_list*.txt
+Chat_Export.md
+ddg_html.html
+classes.txt
+dataclasses.txt

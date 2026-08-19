@@ -1,0 +1,48 @@
+[
+  {
+    "test_case": "7F-1: Online Live Backup Under Load",
+    "description": "Live SQLite backup generated during active write saturation",
+    "pre_recovery_records": 15,
+    "post_recovery_records": 15,
+    "integrity_check_passed": true,
+    "backup_verified": true,
+    "recovery_time_ms": 0.9120419999817386,
+    "status": "PASS",
+    "details": {
+      "source_articles_written": 15,
+      "backup_articles_recovered": 15,
+      "backup_fts5_searchable": true,
+      "backup_duration_ms": 0.9120419999817386
+    }
+  },
+  {
+    "test_case": "7F-2: WAL Crash Replay & Recovery",
+    "description": "Ungraceful termination with un-checkpointed WAL frames automatically replayed on startup",
+    "pre_recovery_records": 1,
+    "post_recovery_records": 1,
+    "integrity_check_passed": true,
+    "backup_verified": true,
+    "recovery_time_ms": 0.9373749999213032,
+    "status": "PASS",
+    "details": {
+      "wal_frames_present_before_recovery": false,
+      "records_preserved": true,
+      "recovery_duration_ms": 0.9373749999213032
+    }
+  },
+  {
+    "test_case": "7F-3: Database Integrity & Foreign Key Audit",
+    "description": "PRAGMA integrity_check and foreign_key_check audit",
+    "pre_recovery_records": 0,
+    "post_recovery_records": 0,
+    "integrity_check_passed": true,
+    "backup_verified": true,
+    "recovery_time_ms": 0.8242499989137286,
+    "status": "PASS",
+    "details": {
+      "integrity_check": "ok",
+      "foreign_key_violations": 0,
+      "audit_duration_ms": 0.8242499989137286
+    }
+  }
+]

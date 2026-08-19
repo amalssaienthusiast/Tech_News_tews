@@ -1,0 +1,93 @@
+{
+  "gate": "8A",
+  "timestamp": "2026-08-16T07:25:47.414981+00:00",
+  "total_steps": 9,
+  "steps_passed": 9,
+  "total_duration_ms": 30.76720800163457,
+  "status": "PASS",
+  "steps": [
+    {
+      "step_number": 1,
+      "step_name": "Environment Boot & Schema Initialization",
+      "duration_ms": 6.845749998319661,
+      "status": "PASS",
+      "details": {
+        "db_path": "/var/folders/0q/vz7x5j6s3jx9_29_v64bf7600000gn/T/tmpbxv1xdm2/prod_canonical.db"
+      }
+    },
+    {
+      "step_number": 2,
+      "step_name": "Health Probe & Prometheus Metrics Exposition",
+      "duration_ms": 3.7304170000425074,
+      "status": "PASS",
+      "details": {
+        "health_status": "ok"
+      }
+    },
+    {
+      "step_number": 3,
+      "step_name": "RBAC Security & Key Authentication",
+      "duration_ms": 4.135999999562046,
+      "status": "PASS",
+      "details": {
+        "anon_rejected": true,
+        "auth_accepted": true
+      }
+    },
+    {
+      "step_number": 4,
+      "step_name": "Canonical Pipeline S01-S11 Persistence",
+      "duration_ms": 4.6609589990112,
+      "status": "PASS",
+      "details": {
+        "article_id": "dc18c59cb106fb93"
+      }
+    },
+    {
+      "step_number": 5,
+      "step_name": "FTS5 BM25 Ranked Search Query",
+      "duration_ms": 1.894208002340747,
+      "status": "PASS",
+      "details": {
+        "results_count": 1
+      }
+    },
+    {
+      "step_number": 6,
+      "step_name": "Shutdown & WAL Frame Restart Recovery",
+      "duration_ms": 3.4181669980171137,
+      "status": "PASS",
+      "details": {
+        "articles_preserved": 1
+      }
+    },
+    {
+      "step_number": 7,
+      "step_name": "Online Live SQLite Backup Snapshot",
+      "duration_ms": 0.8610419972683303,
+      "status": "PASS",
+      "details": {
+        "backup_file": "/var/folders/0q/vz7x5j6s3jx9_29_v64bf7600000gn/T/tmpbxv1xdm2/prod_backup.db"
+      }
+    },
+    {
+      "step_number": 8,
+      "step_name": "Database Restore & PRAGMA Integrity Audit",
+      "duration_ms": 1.8703339992498513,
+      "status": "PASS",
+      "details": {
+        "integrity_check": "ok",
+        "foreign_keys": "ok"
+      }
+    },
+    {
+      "step_number": 9,
+      "step_name": "Restored Database FTS5 Search Continuity",
+      "duration_ms": 2.7160839999851305,
+      "status": "PASS",
+      "details": {
+        "article_title": "Production Deployment Acceptance Verified 8A"
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+# Tech News Scraper Configuration
+# ================================
+# This file contains default configuration values for the scraper.
+
+# Application Settings
+app:
+  name: "Tech News Scraper"
+  version: "1.0.0"
+  debug: false
+  log_level: "INFO"
+
+# Scraping Configuration
+scraping:
+  # Default request delay in seconds
+  request_delay: 5
+  # Maximum concurrent requests
+  max_concurrent: 3
+  # Request timeout in seconds
+  timeout: 30
+  # User agent rotation enabled
+  user_agent_rotation: true
+  # Blocked domains (sites that aggressively block)
+  blocked_domains:
+    - "analyticsindiamag.com"
+
+# Refresh Settings
+refresh:
+  # Cooldown period between refreshes in seconds (5 minutes)
+  cooldown_seconds: 300
+  # Auto-refresh interval in seconds (0 = disabled)
+  auto_refresh_interval: 0
+
+# Data Retention
+retention:
+  # Maximum age of articles in days
+  article_max_age_days: 30
+  # Maximum number of articles to keep
+  max_articles: 10000
+  # Clean frequency in hours
+  cleanup_interval_hours: 24
+
+# Redis Configuration (Optional)
+redis:
+  enabled: false
+  url: "redis://localhost:6379/0"
+
+# API Keys (Set via environment variables)
+# OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY
+
+# GUI Settings
+gui:
+  # Default theme
+  theme: "dark"
+  # Window width
+  width: 1400
+  # Window height
+  height: 900

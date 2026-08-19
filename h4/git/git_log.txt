@@ -1,0 +1,5 @@
+06b9bad phase-8h: remediate independent audit findings
+a867384 phase-8h: complete cloud acceptance harness hardening report
+ff496db phase-8h: harden cloud h4 acceptance harness with strict failure semantics and schema validation
+6679d5e phase-8h: complete cloud runtime acceptance report and e1 soak preparation
+bff6c7c phase-8h: establish automated cloud runtime acceptance harness for gate 8e-h4

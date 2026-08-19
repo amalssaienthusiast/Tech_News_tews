@@ -1,0 +1,54 @@
+[package]
+name = "advanced_web_scraper"
+version = "2.0.0"
+edition = "2021"
+authors = ["Sci_Coder <sci_coder@example.com>"]
+description = "High-performance web scraping library with multiple browser engines (Rust optimized)"
+license = "Proprietary"
+repository = "https://github.com/amalssaienthusiast/Tech_News_Scrapper"
+
+[lib]
+name = "advanced_web_scraper"
+crate-type = ["cdylib"]
+path = "lib.rs"
+
+[dependencies]
+# HTTP client for Simple engine
+reqwest = { version = "0.11", features = ["blocking", "json", "cookies", "gzip", "rustls-tls"] }
+
+# HTML parsing and CSS selectors
+scraper = "0.18"
+
+# JSON parsing
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# UUID generation for browser IDs
+uuid = { version = "1.6", features = ["v4"] }
+
+# Headless Chrome (optional, enable with --features headless)
+headless_chrome = { version = "1.0", optional = true }
+
+# Async support (optional, enable with --features async)
+tokio = { version = "1.35", features = ["full"], optional = true }
+
+# Python bindings - Critical for integration
+pyo3 = { version = "0.20.0", features = ["extension-module"] }
+
+[features]
+default = []
+headless = ["headless_chrome"]
+async = ["tokio"]
+
+# -------------------------------------------------------------------------
+# 🚀 PRODUCTION OPTIMIZATIONS
+# -------------------------------------------------------------------------
+[profile.release]
+opt-level = 3           # Maximum optimization
+lto = "fat"             # Link Time Optimization (cross-crate)
+codegen-units = 1       # Reduce parallelism for better code generation
+panic = "unwind"        # Allow PyO3 exception unwinding
+strip = true            # Strip symbols to reduce size
+
+[dev-dependencies]
+criterion = "0.5"

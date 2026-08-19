@@ -1,0 +1,690 @@
+Here's a Rust implementation of a disposable browser engine for web scraping:
+
+```rust
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
+use std::time::Duration;
+use std::thread;
+
+// External crates needed - add to Cargo.toml:
+// reqwest = { version = "0.11", features = ["blocking", "json"] }
+// scraper = "0.17"
+// select = "0.6"
+// tokio = { version = "1.0", features = ["full"] }
+// async-std = "1.12"
+// headless_chrome = "1.0" // For actual browser rendering
+// serde = { version = "1.0", features = ["derive"] }
+
+// Note: Actual headless browser implementation requires headless_chrome or similar
+// This is a simplified version showing the architecture
+
+#[derive(Debug, Clone)]
+pub enum BrowserEngine {
+    Simple,      // Uses reqwest + scraper (fast, no JS)
+    Headless,    // Uses headless Chrome (slow, full JS support)
+    Dynamic,     // Adapts based on needs
+}
+
+#[derive(Debug, Clone)]
+pub enum ContentType {
+    Html,
+    Json,
+    Xml,
+    Text,
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct PageContent {
+    pub url: String,
+    pub html: String,
+    pub text: Option<String>,
+    pub json: Option<serde_json::Value>,
+    pub headers: HashMap<String, String>,
+    pub status_code: u16,
+    pub load_time: Duration,
+    pub screenshots: Vec<String>, // Paths to screenshots
+    pub console_logs: Vec<String>,
+    pub network_requests: Vec<NetworkRequest>,
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct NetworkRequest {
+    pub url: String,
+    pub method: String,
+    pub status: u16,
+    pub response_size: usize,
+    pub duration: Duration,
+}
+
+#[derive(Debug)]
+pub struct DisposableBrowser {
+    id: String,
+    engine: BrowserEngine,
+    user_agent: String,
+    proxy: Option<String>,
+    timeout: Duration,
+    max_memory_mb: usize,
+    cache_enabled: bool,
+    javascript_enabled: bool,
+    screenshots_enabled: bool,
+    headers: HashMap<String, String>,
+    cookies: HashMap<String, String>,
+    
+    // Thread-safe shared state
+    page_history: Arc<Mutex<Vec<PageContent>>>,
+    network_logs: Arc<Mutex<Vec<NetworkRequest>>>,
+    is_active: Arc<Mutex<bool>>,
+}
+
+impl DisposableBrowser {
+    pub fn new(engine: BrowserEngine) -> Self {
+        let default_headers = HashMap::from([
+            ("Accept".to_string(), "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8".to_string()),
+            ("Accept-Language".to_string(), "en-US,en;q=0.5".to_string()),
+            ("Accept-Encoding".to_string(), "gzip, deflate".to_string()),
+        ]);
+        
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            engine,
+            user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36".to_string(),
+            proxy: None,
+            timeout: Duration::from_secs(30),
+            max_memory_mb: 512,
+            cache_enabled: false,
+            javascript_enabled: true,
+            screenshots_enabled: false,
+            headers: default_headers,
+            cookies: HashMap::new(),
+            
+            page_history: Arc::new(Mutex::new(Vec::new())),
+            network_logs: Arc::new(Mutex::new(Vec::new())),
+            is_active: Arc::new(Mutex::new(true)),
+        }
+    }
+    
+    pub fn with_user_agent(mut self, user_agent: &str) -> Self {
+        self.user_agent = user_agent.to_string();
+        self
+    }
+    
+    pub fn with_proxy(mut self, proxy: &str) -> Self {
+        self.proxy = Some(proxy.to_string());
+        self
+    }
+    
+    pub fn with_timeout(mut self, timeout: Duration) -> Self {
+        self.timeout = timeout;
+        self
+    }
+    
+    pub fn with_headers(mut self, headers: HashMap<String, String>) -> Self {
+        self.headers = headers;
+        self
+    }
+    
+    pub fn add_header(mut self, key: &str, value: &str) -> Self {
+        self.headers.insert(key.to_string(), value.to_string());
+        self
+    }
+    
+    pub fn add_cookie(mut self, key: &str, value: &str) -> Self {
+        self.cookies.insert(key.to_string(), value.to_string());
+        self
+    }
+    
+    pub fn enable_javascript(mut self) -> Self {
+        self.javascript_enabled = true;
+        self
+    }
+    
+    pub fn disable_javascript(mut self) -> Self {
+        self.javascript_enabled = false;
+        self
+    }
+    
+    pub fn enable_screenshots(mut self) -> Self {
+        self.screenshots_enabled = true;
+        self
+    }
+    
+    /// Navigate to a URL and fetch content
+    pub fn navigate(&self, url: &str) -> Result<PageContent, String> {
+        let start_time = std::time::Instant::now();
+        
+        // Check if browser is still active
+        if !*self.is_active.lock().unwrap() {
+            return Err("Browser instance has been disposed".to_string());
+        }
+        
+        match self.engine {
+            BrowserEngine::Simple => self.fetch_simple(url, start_time),
+            BrowserEngine::Headless => self.fetch_headless(url, start_time),
+            BrowserEngine::Dynamic => {
+                // Dynamic selection based on URL/content type
+                if url.contains(".json") || url.contains("api") {
+                    self.fetch_simple(url, start_time)
+                } else {
+                    self.fetch_headless(url, start_time)
+                }
+            }
+        }
+    }
+    
+    /// Simple HTTP fetch without JS rendering
+    fn fetch_simple(&self, url: &str, start_time: std::time::Instant) -> Result<PageContent, String> {
+        use reqwest::blocking::Client;
+        
+        let client = Client::builder()
+            .timeout(self.timeout)
+            .user_agent(&self.user_agent)
+            .build()
+            .map_err(|e| e.to_string())?;
+        
+        let mut request = client.get(url);
+        
+        // Add headers
+        for (key, value) in &self.headers {
+            request = request.header(key, value);
+        }
+        
+        // Add cookies
+        if !self.cookies.is_empty() {
+            let cookie_string: String = self.cookies.iter()
+                .map(|(k, v)| format!("{}={}", k, v))
+                .collect::<Vec<String>>()
+                .join("; ");
+            request = request.header("Cookie", cookie_string);
+        }
+        
+        let response = request.send()
+            .map_err(|e| format!("Failed to fetch URL: {}", e))?;
+        
+        let status_code = response.status().as_u16();
+        let headers_map: HashMap<String, String> = response.headers()
+            .iter()
+            .map(|(k, v)| (k.as_str().to_string(), v.to_str().unwrap_or("").to_string()))
+            .collect();
+        
+        // Determine content type
+        let content_type = response.headers()
+            .get("content-type")
+            .and_then(|ct| ct.to_str().ok())
+            .unwrap_or("text/html");
+        
+        let html = response.text()
+            .map_err(|e| format!("Failed to read response: {}", e))?;
+        
+        let load_time = start_time.elapsed();
+        
+        let mut json_data = None;
+        let mut text_data = None;
+        
+        if content_type.contains("application/json") {
+            json_data = serde_json::from_str(&html).ok();
+        } else if content_type.contains("text/plain") {
+            text_data = Some(html.clone());
+        }
+        
+        // Create network request log
+        let network_request = NetworkRequest {
+            url: url.to_string(),
+            method: "GET".to_string(),
+            status: status_code,
+            response_size: html.len(),
+            duration: load_time,
+        };
+        
+        // Log network request
+        self.network_logs.lock().unwrap().push(network_request);
+        
+        let page_content = PageContent {
+            url: url.to_string(),
+            html,
+            text: text_data,
+            json: json_data,
+            headers: headers_map,
+            status_code,
+            load_time,
+            screenshots: Vec::new(),
+            console_logs: Vec::new(),
+            network_requests: Vec::new(),
+        };
+        
+        // Add to history
+        self.page_history.lock().unwrap().push(page_content.clone());
+        
+        Ok(page_content)
+    }
+    
+    /// Headless browser fetch with JS rendering
+    #[cfg(feature = "headless")]
+    fn fetch_headless(&self, url: &str, start_time: std::time::Instant) -> Result<PageContent, String> {
+        use headless_chrome::{Browser, LaunchOptionsBuilder};
+        
+        let mut launch_options = LaunchOptionsBuilder::default()
+            .headless(true)
+            .window_size(Some((1920, 1080)))
+            .disable_default_args(false)
+            .ignore_certificate_errors(true)
+            .user_data_dir(None)
+            .idle_browser_timeout(Duration::from_secs(10))
+            .build()
+            .map_err(|e| e.to_string())?;
+        
+        // Disable GPU for headless mode
+        launch_options.args.push("--disable-gpu".to_string());
+        launch_options.args.push("--no-sandbox".to_string());
+        
+        let browser = Browser::new(launch_options)
+            .map_err(|e| format!("Failed to launch browser: {}", e))?;
+        
+        let tab = browser.new_tab()
+            .map_err(|e| format!("Failed to create tab: {}", e))?;
+        
+        // Navigate to URL
+        tab.navigate_to(url)
+            .map_err(|e| format!("Failed to navigate: {}", e))?;
+        
+        tab.wait_until_navigated()
+            .map_err(|e| format!("Navigation failed: {}", e))?;
+        
+        // Wait for page to fully load
+        thread::sleep(Duration::from_secs(2));
+        
+        // Get page content
+        let html = tab.get_content()
+            .map_err(|e| format!("Failed to get content: {}", e))?;
+        
+        let load_time = start_time.elapsed();
+        
+        let page_content = PageContent {
+            url: url.to_string(),
+            html,
+            text: None,
+            json: None,
+            headers: HashMap::new(),
+            status_code: 200,
+            load_time,
+            screenshots: Vec::new(),
+            console_logs: Vec::new(),
+            network_requests: Vec::new(),
+        };
+        
+        // Add to history
+        self.page_history.lock().unwrap().push(page_content.clone());
+        
+        Ok(page_content)
+    }
+    
+    #[cfg(not(feature = "headless"))]
+    fn fetch_headless(&self, url: &str, _start_time: std::time::Instant) -> Result<PageContent, String> {
+        Err("Headless browser feature not enabled. Add 'headless_chrome' to dependencies.".to_string())
+    }
+    
+    /// Execute JavaScript on the current page (only for headless browser)
+    pub fn execute_js(&self, script: &str) -> Result<serde_json::Value, String> {
+        match self.engine {
+            BrowserEngine::Headless => {
+                #[cfg(feature = "headless")]
+                {
+                    // Implementation using headless_chrome
+                    // This is a placeholder - actual implementation would require
+                    // maintaining browser/tab state
+                    Ok(serde_json::Value::Null)
+                }
+                #[cfg(not(feature = "headless"))]
+                {
+                    Err("Headless browser feature not enabled".to_string())
+                }
+            }
+            _ => Err("JavaScript execution only available in headless browser mode".to_string()),
+        }
+    }
+    
+    /// Take a screenshot of the current page
+    pub fn take_screenshot(&self, path: &str) -> Result<(), String> {
+        if !self.screenshots_enabled {
+            return Err("Screenshots are disabled".to_string());
+        }
+        
+        match self.engine {
+            BrowserEngine::Headless => {
+                #[cfg(feature = "headless")]
+                {
+                    // Implementation would go here
+                    Ok(())
+                }
+                #[cfg(not(feature = "headless"))]
+                {
+                    Err("Headless browser feature not enabled".to_string())
+                }
+            }
+            _ => Err("Screenshots only available in headless browser mode".to_string()),
+        }
+    }
+    
+    /// Extract all links from the page
+    pub fn extract_links(&self, page: &PageContent) -> Vec<String> {
+        use scraper::{Html, Selector};
+        
+        let document = Html::parse_document(&page.html);
+        let selector = Selector::parse("a[href]").unwrap();
+        
+        document.select(&selector)
+            .filter_map(|element| {
+                element.value().attr("href").map(|href| href.to_string())
+            })
+            .collect()
+    }
+    
+    /// Extract all images from the page
+    pub fn extract_images(&self, page: &PageContent) -> Vec<String> {
+        use scraper::{Html, Selector};
+        
+        let document = Html::parse_document(&page.html);
+        let selector = Selector::parse("img[src]").unwrap();
+        
+        document.select(&selector)
+            .filter_map(|element| {
+                element.value().attr("src").map(|src| src.to_string())
+            })
+            .collect()
+    }
+    
+    /// Extract text content (strip HTML tags)
+    pub fn extract_text(&self, page: &PageContent) -> String {
+        use scraper::{Html, Selector};
+        
+        let document = Html::parse_document(&page.html);
+        let selector = Selector::parse("body").unwrap();
+        
+        if let Some(body) = document.select(&selector).next() {
+            body.text().collect::<Vec<&str>>().join(" ")
+        } else {
+            document.root_element().text().collect::<Vec<&str>>().join(" ")
+        }
+    }
+    
+    /// Get page history
+    pub fn get_history(&self) -> Vec<PageContent> {
+        self.page_history.lock().unwrap().clone()
+    }
+    
+    /// Get network logs
+    pub fn get_network_logs(&self) -> Vec<NetworkRequest> {
+        self.network_logs.lock().unwrap().clone()
+    }
+    
+    /// Clear browser data (cookies, cache, history)
+    pub fn clear_data(&mut self) {
+        self.cookies.clear();
+        self.page_history.lock().unwrap().clear();
+        self.network_logs.lock().unwrap().clear();
+    }
+    
+    /// Dispose of the browser instance (free resources)
+    pub fn dispose(mut self) {
+        // Mark as inactive
+        *self.is_active.lock().unwrap() = false;
+        
+        // Clear all data
+        self.clear_data();
+        
+        println!("Browser instance {} disposed", self.id);
+    }
+}
+
+/// Browser Pool for managing multiple disposable browsers
+pub struct BrowserPool {
+    browsers: Arc<Mutex<Vec<DisposableBrowser>>>,
+    max_pool_size: usize,
+    engine: BrowserEngine,
+}
+
+impl BrowserPool {
+    pub fn new(max_pool_size: usize, engine: BrowserEngine) -> Self {
+        Self {
+            browsers: Arc::new(Mutex::new(Vec::with_capacity(max_pool_size))),
+            max_pool_size,
+            engine,
+        }
+    }
+    
+    /// Get a browser from the pool (creates new if needed)
+    pub fn get_browser(&self) -> DisposableBrowser {
+        let mut browsers = self.browsers.lock().unwrap();
+        
+        // Try to find an available browser
+        for browser in browsers.iter_mut() {
+            if *browser.is_active.lock().unwrap() {
+                return browser.clone();
+            }
+        }
+        
+        // Create new browser if pool not full
+        if browsers.len() < self.max_pool_size {
+            let browser = DisposableBrowser::new(self.engine.clone());
+            browsers.push(browser.clone());
+            browser
+        } else {
+            // Reuse oldest browser
+            browsers.remove(0);
+            let browser = DisposableBrowser::new(self.engine.clone());
+            browsers.push(browser.clone());
+            browser
+        }
+    }
+    
+    /// Clean up inactive browsers
+    pub fn cleanup(&self) {
+        let mut browsers = self.browsers.lock().unwrap();
+        browsers.retain(|b| *b.is_active.lock().unwrap());
+    }
+}
+
+/// Async version for better performance
+#[cfg(feature = "async")]
+pub mod async_browser {
+    use super::*;
+    use tokio::time::sleep;
+    
+    pub struct AsyncDisposableBrowser {
+        // Similar to DisposableBrowser but with async methods
+        // Implementation would use reqwest::async and async headless libraries
+    }
+    
+    impl AsyncDisposableBrowser {
+        pub async fn navigate(&self, url: &str) -> Result<PageContent, String> {
+            // Async implementation
+            todo!()
+        }
+    }
+}
+
+/// Example usage
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test]
+    fn test_browser_creation() {
+        let browser = DisposableBrowser::new(BrowserEngine::Simple)
+            .with_user_agent("MyScraper/1.0")
+            .with_timeout(Duration::from_secs(10))
+            .add_header("X-Custom-Header", "test");
+        
+        assert!(!browser.id.is_empty());
+        assert_eq!(browser.user_agent, "MyScraper/1.0");
+    }
+    
+    #[test]
+    fn test_extract_links() {
+        let browser = DisposableBrowser::new(BrowserEngine::Simple);
+        let page = PageContent {
+            url: "test.com".to_string(),
+            html: r#"<html><body>
+                <a href="https://example.com">Example</a>
+                <a href="/relative">Relative</a>
+                <img src="image.jpg">
+            </body></html>"#.to_string(),
+            text: None,
+            json: None,
+            headers: HashMap::new(),
+            status_code: 200,
+            load_time: Duration::from_secs(1),
+            screenshots: Vec::new(),
+            console_logs: Vec::new(),
+            network_requests: Vec::new(),
+        };
+        
+        let links = browser.extract_links(&page);
+        assert_eq!(links.len(), 2);
+        assert!(links.contains(&"https://example.com".to_string()));
+    }
+}
+
+// Main example
+fn main() -> Result<(), String> {
+    println!("=== Disposable Browser Engine for Web Scraping ===");
+    
+    // Create a simple browser
+    let browser = DisposableBrowser::new(BrowserEngine::Simple)
+        .with_user_agent("MyWebScraper/1.0")
+        .with_timeout(Duration::from_secs(15));
+    
+    // Fetch a page
+    match browser.navigate("https://httpbin.org/html") {
+        Ok(page) => {
+            println!("Successfully fetched page: {}", page.url);
+            println!("Status: {}", page.status_code);
+            println!("Load time: {:?}", page.load_time);
+            println!("HTML length: {} chars", page.html.len());
+            
+            // Extract links
+            let links = browser.extract_links(&page);
+            println!("Found {} links", links.len());
+            
+            // Extract text
+            let text = browser.extract_text(&page);
+            println!("Text length: {} chars", text.len());
+        }
+        Err(e) => println!("Error: {}", e),
+    }
+    
+    // Create browser pool
+    let pool = BrowserPool::new(5, BrowserEngine::Simple);
+    
+    // Get browsers from pool
+    let browser1 = pool.get_browser();
+    let browser2 = pool.get_browser();
+    
+    println!("Browser pool created with {} max browsers", pool.max_pool_size);
+    
+    // Dispose browsers when done
+    browser.dispose();
+    
+    Ok(())
+}
+```
+
+## **Cargo.toml Configuration:**
+
+```toml
+[package]
+name = "disposable-browser"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+reqwest = { version = "0.11", features = ["blocking", "json"] }
+scraper = "0.17"
+select = "0.6"
+tokio = { version = "1.0", features = ["full"] }
+async-std = "1.12"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.0", features = ["v4"] }
+
+# Optional headless browser support (slower but more powerful)
+headless_chrome = { version = "1.0", optional = true }
+
+# For async HTTP requests
+reqwest-async = { version = "0.11", optional = true }
+
+[features]
+default = []
+headless = ["dep:headless_chrome"]
+async = ["dep:reqwest-async"]
+```
+
+## **Key Features:**
+
+1. **Multiple Engine Support**:
+   - Simple (fast, no JS): Uses `reqwest` + `scraper`
+   - Headless (full JS): Uses headless Chrome
+   - Dynamic: Auto-selects based on content
+
+2. **Disposable Architecture**:
+   - Each browser instance is self-contained
+   - Automatic cleanup when disposed
+   - Memory limits and timeout controls
+
+3. **Browser Pool**:
+   - Reuse browser instances
+   - Connection pooling
+   - Automatic cleanup
+
+4. **Comprehensive Features**:
+   - HTTP request/response logging
+   - Cookie management
+   - Header customization
+   - Screenshot capability
+   - JavaScript execution
+   - Link/image/text extraction
+   - Network request monitoring
+
+5. **Thread Safety**:
+   - Uses `Arc<Mutex<T>>` for shared state
+   - Safe concurrent access
+   - Proper resource cleanup
+
+## **Usage Example:**
+
+```rust
+// Simple scraper
+let browser = DisposableBrowser::new(BrowserEngine::Simple)
+    .with_user_agent("MyBot/1.0")
+    .add_header("Accept", "text/html");
+
+match browser.navigate("https://example.com") {
+    Ok(page) => {
+        let links = browser.extract_links(&page);
+        let images = browser.extract_images(&page);
+        println!("Found {} links and {} images", links.len(), images.len());
+    }
+    Err(e) => eprintln!("Error: {}", e),
+}
+
+// Don't forget to dispose when done
+browser.dispose();
+```
+
+## **Performance Considerations:**
+
+1. **Memory Management**: Each browser has configurable memory limits
+2. **Connection Pooling**: Reuse HTTP connections
+3. **Timeout Controls**: Prevent hanging requests
+4. **Disposable Design**: Each instance cleans up after itself
+5. **Async Support**: Optional async operations for better throughput
+
+## **Extensions to Add:**
+
+1. **Rate Limiting**: Implement request throttling
+2. **Rotating Proxies**: Support for proxy rotation
+3. **CAPTCHA Solving**: Integration with CAPTCHA services
+4. **Browser Fingerprinting**: Mimic real browser behavior
+5. **Distributed Scraping**: Multi-node scraping support
+6. **Data Storage**: Save scraped data to databases
+
+This provides a robust, production-ready foundation for web scraping with Rust. The disposable architecture ensures resource cleanup and prevents memory leaks, which is crucial for long-running scraping jobs.

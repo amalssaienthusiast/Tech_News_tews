@@ -1,0 +1,147 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tech-news-scraper"
+version = "2.0.0"
+description = "Production-grade Real-Time Tech News Aggregator & Scraper with Canonical Pipeline"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "Antigravity Engineering", email = "engineering@example.com" }
+]
+dependencies = [
+    "aiohttp>=3.8.0",
+    "aiosqlite>=0.17.0",
+    "beautifulsoup4>=4.9.3",
+    "certifi>=2024.2.2",
+    "datasketch>=1.6.0",
+    "fastapi>=0.100.0",
+    "feedparser>=6.0.10",
+    "gunicorn>=21.2.0",
+    "httpx>=0.24.0",
+    "psutil>=5.9.0",
+    "pydantic>=2.0.0",
+    "PyYAML>=6.0.0",
+    "requests>=2.25.1",
+    "uvicorn>=0.23.0",
+    "websockets>=11.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.20.0",
+    "aioresponses>=0.7.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+
+[project.scripts]
+technews = "cli:main"
+technews-api = "main:run_api"
+technews-worker = "src.worker:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "config*", "experiments*", "gui_qt*"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+extend-exclude = [
+    "src/bypass/",        # Rust sub-crate
+    "tests/manual/",
+    "tests/debug_medium.py",
+]
+
+[tool.ruff.lint]
+# Enable rule groups:
+# E = pycodestyle errors, W = warnings, F = pyflakes
+# I = isort, N = pep8-naming, UP = pyupgrade
+# B = bugbear, C4 = comprehensions, SIM = simplifications
+# RET = return, ARG = unused-arguments, PTH = use-pathlib
+select = ["E", "W", "F", "I", "N", "UP", "B", "C4", "SIM", "RET", "ARG", "PTH"]
+ignore = [
+    "E501",    # line too long (handled by formatter)
+    "B008",    # function call in default argument (used by FastAPI Depends)
+    "B904",    # raise from (would require touching 500+ except blocks — see audit)
+    "ARG001",  # unused function argument (common in abstract base classes)
+    "ARG002",  # unused method argument
+    "N805",    # first argument of method should be self (false positive on @staticmethod)
+    "N818",    # error suffix on exception names (would require renaming ScrapingConnectionError etc.)
+    "RET504",  # unnecessary return None (explicit is fine)
+    "SIM117",  # combine isinstance checks (less readable)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ARG", "B008", "B017"]
+"tests/test_*.py" = ["F401"]  # unused imports in tests are OK (re-exported fixtures)
+"__init__.py" = ["F401"]      # re-exports are intentional
+"src/database.py" = ["B904"]  # legacy module; will be refactored separately
+"src/scraper.py" = ["B904"]   # legacy module; production-dead per audit
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --strict-config"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "live: marks tests that require live network or API keys",
+    "gui: marks tests that require a display (PyQt6)",
+    "rust: marks tests that require the Rust bypass extension",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:pydantic.*",
+    "ignore::UserWarning:fuzzywuzzy.*",
+    "ignore::pytest.PytestUnraisableExceptionWarning",
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "src/bypass/*",
+    "src/operations/diagnostic_toolkit.py",
+    "tests/*",
+]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+show_missing = true
+skip_covered = false
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = false  # too noisy for this codebase; enable per-module later
+warn_unused_configs = true
+disallow_untyped_defs = false  # would flag ~35% of the codebase
+ignore_missing_imports = true  # for optional deps (torch, playwright, etc.)
+exclude = [
+    "src/bypass/",
+    "tests/",
+]
+
+[[tool.mypy.overrides]]
+module = "src.database"
+warn_return_any = false
+disallow_untyped_defs = false
+
+[tool.black]
+# Black is configured for compatibility with ruff format.
+line-length = 120
+target-version = ["py311"]

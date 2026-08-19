@@ -1,0 +1,120 @@
+{
+  "baseline_commit": "a867384bb33d58816e915a29429e594fa9846b8d",
+  "review_date": "2026-08-19",
+  "gate_decision": "GREEN",
+  "test_metrics": {
+    "total_collected": 739,
+    "total_passed": 736,
+    "total_failed": 3,
+    "deferred_failures": [
+      "tests/test_gui_qt.py::TestImports::test_main_window_import",
+      "tests/test_gui_qt.py::TestImports::test_controller_import",
+      "tests/test_gui_qt.py::TestImports::test_package_import"
+    ]
+  },
+  "findings": [
+    {
+      "id": "P1-1",
+      "status": "verified_fixed",
+      "files_changed": [
+        "src/api/app.py",
+        "tests/test_api_lifecycle.py"
+      ],
+      "tests": [
+        "tests/test_api_lifecycle.py::test_sources_endpoint_authenticated_succeeds_and_structure_valid",
+        "tests/test_api_lifecycle.py::test_sources_endpoint_unauthenticated_fails_with_401"
+      ],
+      "evidence": "GET /sources previously failed with NameError: name 'load_config' is not defined. Added canonical 'from config.config import load_config' to src/api/app.py. Authenticated GET /sources returns HTTP 200 with valid source structure."
+    },
+    {
+      "id": "P1-2",
+      "status": "verified_fixed",
+      "files_changed": [
+        "src/api/auth.py",
+        "tests/test_canonical_runtime_auth.py"
+      ],
+      "tests": [
+        "tests/test_canonical_runtime_auth.py::TestCanonicalRuntimeAndAuth::test_api_key_manager_lifecycle_and_fresh_db"
+      ],
+      "evidence": "APIKeyManager._ensure_schema() was not called during initialization. Implemented __init__ calling _ensure_schema(), added db_path override, and re-raised exceptions instead of silently swallowing schema errors. Verified on fresh DB, existing DB, ro DB, and valid/invalid key lookups."
+    },
+    {
+      "id": "P2-1",
+      "status": "verified_fixed",
+      "files_changed": [
+        "src/discovery.py",
+        "tests/test_discovery.py"
+      ],
+      "tests": [
+        "tests/test_discovery.py::TestArticleURLClassification::test_package_import_resolution",
+        "tests/test_discovery.py::TestArticleURLClassification::test_is_likely_article_url_patterns"
+      ],
+      "evidence": "WebDiscoveryAgent._is_likely_article_url() raised NameError: name 're' is not defined when called standalone. Added top-level module import 'import re' in src/discovery.py."
+    },
+    {
+      "id": "P2-2",
+      "status": "verified_fixed",
+      "files_changed": [
+        "src/pipeline/stages/s07_clustering.py",
+        "tests/test_stage_clustering.py"
+      ],
+      "tests": [
+        "tests/test_stage_clustering.py::test_second_related_article_merges_into_same_event",
+        "tests/test_stage_clustering.py::test_temporal_invariants_47h_vs_49h_window",
+        "tests/test_stage_clustering.py::test_temporal_invariants_historical_replay_and_out_of_order"
+      ],
+      "evidence": "EventClusterer.process evaluated now_utc = datetime.now(UTC) rather than using article.discovered_at, which pruned active events from store when processing historical or batched articles. Updated to now_utc = input_item.discovered_at or datetime.now(UTC). Proved all 7 temporal invariant cases."
+    },
+    {
+      "id": "P2-3",
+      "status": "verified_fixed",
+      "files_changed": [
+        "tests/test_deployment_baseline.py"
+      ],
+      "tests": [
+        "tests/test_deployment_baseline.py::TestDockerConfiguration::test_dockerfile_exposes_port_8000",
+        "tests/test_deployment_baseline.py::TestDockerConfiguration::test_dockerfile_healthcheck_targets_health",
+        "tests/test_deployment_baseline.py::TestDockerConfiguration::test_docker_compose_uses_port_8000"
+      ],
+      "evidence": "tests/test_deployment_baseline.py had stale assertions expecting port 8080 and /api/v1/health from Phase 1B. Updated assertions to match canonical runtime specification, Dockerfile, and docker-compose.yml (port 8000 and /health)."
+    },
+    {
+      "id": "P2-4",
+      "status": "verified_fixed",
+      "files_changed": [
+        "tests/test_realtime_logging.py"
+      ],
+      "tests": [
+        "tests/test_realtime_logging.py::TestRealTimeLogHandler::test_handler_delivers_record_to_widget",
+        "tests/test_realtime_logging.py::TestEventBusPublish::test_publish_accepts_single_event",
+        "tests/test_realtime_logging.py::TestEventBusPublish::test_publish_rejects_two_arguments",
+        "tests/test_realtime_logging.py::TestCallbackTypeHints::test_article_callback_signature"
+      ],
+      "evidence": "tests/test_realtime_logging.py referenced obsolete RealTimeLogHandler in deleted gui.app and patched non-existent Database in orchestrator. Updated test to exercise QtLogHandler in gui_qt.widgets.live_activity_log and removed obsolete Database patch."
+    },
+    {
+      "id": "P2-5",
+      "status": "verified_fixed",
+      "files_changed": [
+        "misc/techcrunch_sample.html",
+        "misc/verge_sample.html",
+        "misc/wired_sample.html"
+      ],
+      "tests": [
+        "tests/test_directory_scraper_selectors.py::TestDirectoryScraperSelectors::test_techcrunch_selectors",
+        "tests/test_directory_scraper_selectors.py::TestDirectoryScraperSelectors::test_verge_selectors",
+        "tests/test_directory_scraper_selectors.py::TestDirectoryScraperSelectors::test_wired_selectors"
+      ],
+      "evidence": "tests/test_directory_scraper_selectors.py failed due to missing misc/*.html sample fixtures accidentally deleted in commit 1e25455f. Restored original deterministic fixtures from commit 5e846215."
+    },
+    {
+      "id": "P2-6",
+      "status": "verified_fixed",
+      "files_changed": [
+        "docs/ARCHITECTURE_INVENTORY.md"
+      ],
+      "tests": [],
+      "evidence": "docs/ARCHITECTURE_INVENTORY.md was a stale Phase 0 document. Added clear banner marking it as historical / superseded Phase 0 baseline inventory and directing readers to docs/CANONICAL_RUNTIME.md for authoritative Phase 8+ architecture."
+    }
+  ]
+}

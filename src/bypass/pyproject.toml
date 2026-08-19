@@ -1,0 +1,15 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "advanced_web_scraper"
+version = "2.0.0"
+description = "High-performance web scraping library"
+authors = [{name = "Sci_Coder", email = "sci_coder@example.com"}]
+requires-python = ">=3.8"
+dependencies = []
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
+module-name = "advanced_web_scraper"

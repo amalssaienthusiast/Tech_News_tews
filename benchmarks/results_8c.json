@@ -1,0 +1,107 @@
+{
+  "gate": "8C",
+  "timestamp": "2026-08-16T07:33:01.731072+00:00",
+  "total_scenarios": 6,
+  "scenarios_passed": 6,
+  "split_brain_count": 0,
+  "total_duration_ms": 2602.7627920011582,
+  "status": "PASS",
+  "scenarios": [
+    {
+      "scenario_id": 1,
+      "scenario_name": "Concurrent Disjoint Ownership",
+      "injected_conditions": "16 workers acquiring 16 disjoint sources concurrently",
+      "operations_attempted": 16,
+      "operations_succeeded": 16,
+      "active_owners_max": 1,
+      "split_brain_detected": false,
+      "stale_writes_prevented": true,
+      "recovery_time_ms": 44.32404199906159,
+      "status": "PASS",
+      "details": {
+        "acquired_count": 16,
+        "latency_ms": 44.32404199906159
+      }
+    },
+    {
+      "scenario_id": 2,
+      "scenario_name": "Worker Crash & Successor Takeover",
+      "injected_conditions": "Worker crashed without release; successor reclaims after TTL",
+      "operations_attempted": 3,
+      "operations_succeeded": 2,
+      "active_owners_max": 1,
+      "split_brain_detected": false,
+      "stale_writes_prevented": true,
+      "recovery_time_ms": 357.4347080029838,
+      "status": "PASS",
+      "details": {
+        "initial_token": "4995d4a7-7919-4d41-b1b9-1ef39883d804",
+        "successor_token": "4b829dfe-c674-46ef-97d1-f0fea5010fb5"
+      }
+    },
+    {
+      "scenario_id": 3,
+      "scenario_name": "Stale Fencing Token Rejection",
+      "injected_conditions": "Delayed worker waking up after lease takeover is rejected",
+      "operations_attempted": 4,
+      "operations_succeeded": 2,
+      "active_owners_max": 1,
+      "split_brain_detected": false,
+      "stale_writes_prevented": true,
+      "recovery_time_ms": 258.5160420021566,
+      "status": "PASS",
+      "details": {
+        "stale_token_rejected": true,
+        "valid_token": "52d976c4-ffc6-4fe7-b2b0-1f2761a896d3"
+      }
+    },
+    {
+      "scenario_id": 4,
+      "scenario_name": "Multi-Process Simultaneous Contention",
+      "injected_conditions": "8 OS processes simultaneously compete for 1 source lease",
+      "operations_attempted": 8,
+      "operations_succeeded": 1,
+      "active_owners_max": 1,
+      "split_brain_detected": false,
+      "stale_writes_prevented": true,
+      "recovery_time_ms": 1871.5402079978958,
+      "status": "PASS",
+      "details": {
+        "winners": 1,
+        "losers": 7,
+        "winner_worker": "pid_worker_0"
+      }
+    },
+    {
+      "scenario_id": 5,
+      "scenario_name": "Coordinator Restart & Lease Continuity",
+      "injected_conditions": "Coordinator restarts; persistent leases verified across instance",
+      "operations_attempted": 2,
+      "operations_succeeded": 2,
+      "active_owners_max": 1,
+      "split_brain_detected": false,
+      "stale_writes_prevented": true,
+      "recovery_time_ms": 1.8903339987446088,
+      "status": "PASS",
+      "details": {
+        "lease_valid_after_restart": true
+      }
+    },
+    {
+      "scenario_id": 6,
+      "scenario_name": "Rapid Lease Churn & Release",
+      "injected_conditions": "50 consecutive acquire & immediate release cycles",
+      "operations_attempted": 100,
+      "operations_succeeded": 100,
+      "active_owners_max": 1,
+      "split_brain_detected": false,
+      "stale_writes_prevented": true,
+      "recovery_time_ms": 61.477666000428144,
+      "status": "PASS",
+      "details": {
+        "cycles": 50,
+        "avg_cycle_ms": 1.2295533200085629
+      }
+    }
+  ]
+}
